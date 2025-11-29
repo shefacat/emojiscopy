@@ -200,8 +200,8 @@
     <main class="container" itemscope itemtype="https://schema.org/ItemList">
         <!-- Search Bar -->
         <div class="search-container">
-            <label for="searchInput" class="sr-only">Search emojis</label>
-            <input type="text" id="searchInput" name="search" placeholder="🔍 Search emojis... (e.g., smile, heart, fire)" aria-label="Search emojis by keyword">
+            <label for="searchInput" class="sr-only" hidden>Search emojis</label>
+            <input type="search" id="searchInput" name="search" placeholder="🔍 Search emojis... (e.g., smile, heart, fire)" aria-label="Search emojis by keyword">
         </div>
 
         <!-- Copy Notification -->
@@ -2095,47 +2095,185 @@
     </footer>
 
     <script>
-        // Copy to Clipboard
+        // Copy to Clipboard - Mobile Optimized
         const emojiItems = document.querySelectorAll('.emoji-item');
         const notification = document.getElementById('copyNotification');
 
-        emojiItems.forEach(item => {
-            item.addEventListener('click', () => {
-                // Get the full text content, excluding the span text
-                const span = item.querySelector('span');
-                const fullText = item.textContent;
-                const spanText = span ? span.textContent : '';
-                // Remove the span text from the full text to get just the emoji/symbol
-                const emoji = fullText.replace(spanText, '').trim();
-                
-                // Copy to clipboard
-                navigator.clipboard.writeText(emoji).then(() => {
-                    // Show notification
-                    notification.classList.add('show');
-                    
-                    // Hide notification after 2 seconds
-                    setTimeout(() => {
-                        notification.classList.remove('show');
-                    }, 2000);
+        // Detect if device is mobile
+        const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+        
+        // Function to copy text to clipboard
+        function copyToClipboard(text) {
+            // On mobile, prefer the textArea method as it's more reliable
+            if (isMobile) {
+                return fallbackCopy(text);
+            }
+            
+            // On desktop, try modern clipboard API first
+            if (navigator.clipboard && window.isSecureContext) {
+                return navigator.clipboard.writeText(text).then(() => {
+                    showNotification();
+                    return true;
                 }).catch(err => {
-                    console.error('Failed to copy: ', err);
-                    // Fallback for older browsers
-                    const textArea = document.createElement('textarea');
-                    textArea.value = emoji;
-                    textArea.style.position = 'fixed';
-                    textArea.style.opacity = '0';
-                    document.body.appendChild(textArea);
-                    textArea.select();
+                    console.error('Clipboard API failed: ', err);
+                    return fallbackCopy(text);
+                });
+            } else {
+                // Use fallback for non-secure contexts or older browsers
+                return fallbackCopy(text);
+            }
+        }
+
+        // Fallback copy method (works better on mobile)
+        function fallbackCopy(text) {
+            return new Promise((resolve, reject) => {
+                const textArea = document.createElement('textarea');
+                textArea.value = text;
+                textArea.style.position = 'fixed';
+                textArea.style.top = '0';
+                textArea.style.left = '0';
+                textArea.style.width = '2em';
+                textArea.style.height = '2em';
+                textArea.style.padding = '0';
+                textArea.style.border = 'none';
+                textArea.style.outline = 'none';
+                textArea.style.boxShadow = 'none';
+                textArea.style.background = 'transparent';
+                textArea.style.opacity = '0';
+                textArea.style.zIndex = '9999';
+                textArea.setAttribute('readonly', '');
+                textArea.setAttribute('contenteditable', 'true');
+                
+                document.body.appendChild(textArea);
+                
+                // Focus and select for mobile devices
+                textArea.focus();
+                textArea.select();
+                
+                // For iOS devices
+                if (navigator.userAgent.match(/ipad|iphone/i)) {
+                    const range = document.createRange();
+                    range.selectNodeContents(textArea);
+                    const selection = window.getSelection();
+                    selection.removeAllRanges();
+                    selection.addRange(range);
+                    textArea.setSelectionRange(0, 999999);
+                } else {
+                    // For Android and other devices
+                    textArea.setSelectionRange(0, 999999);
+                }
+                
+                // Small delay to ensure selection is set
+                setTimeout(() => {
                     try {
-                        document.execCommand('copy');
-                        notification.classList.add('show');
-                        setTimeout(() => {
-                            notification.classList.remove('show');
-                        }, 2000);
-                    } catch (fallbackErr) {
-                        console.error('Fallback copy failed: ', fallbackErr);
+                        const successful = document.execCommand('copy');
+                        document.body.removeChild(textArea);
+                        if (successful) {
+                            showNotification();
+                            resolve(true);
+                        } else {
+                            // Try clipboard API as last resort
+                            if (navigator.clipboard && window.isSecureContext) {
+                                navigator.clipboard.writeText(text).then(() => {
+                                    showNotification();
+                                    resolve(true);
+                                }).catch(err => {
+                                    reject(new Error('All copy methods failed'));
+                                });
+                            } else {
+                                reject(new Error('Copy command failed'));
+                            }
+                        }
+                    } catch (err) {
+                        document.body.removeChild(textArea);
+                        // Try clipboard API as last resort
+                        if (navigator.clipboard && window.isSecureContext) {
+                            navigator.clipboard.writeText(text).then(() => {
+                                showNotification();
+                                resolve(true);
+                            }).catch(clipErr => {
+                                console.error('All copy methods failed: ', err, clipErr);
+                                reject(err);
+                            });
+                        } else {
+                            console.error('Fallback copy failed: ', err);
+                            reject(err);
+                        }
                     }
-                    document.body.removeChild(textArea);
+                }, 10);
+            });
+        }
+
+        // Show notification
+        function showNotification() {
+            notification.classList.add('show');
+            setTimeout(() => {
+                notification.classList.remove('show');
+            }, 2000);
+        }
+
+        // Handle copy for each emoji item
+        emojiItems.forEach(item => {
+            // Get emoji text
+            const span = item.querySelector('span');
+            const fullText = item.textContent;
+            const spanText = span ? span.textContent : '';
+            const emoji = fullText.replace(spanText, '').trim();
+            
+            let touchStartTime = 0;
+            let touchStartX = 0;
+            let touchStartY = 0;
+            let hasMoved = false;
+            
+            // Touch start - track position and time
+            item.addEventListener('touchstart', (e) => {
+                touchStartTime = Date.now();
+                touchStartX = e.touches[0].clientX;
+                touchStartY = e.touches[0].clientY;
+                hasMoved = false;
+            }, { passive: true });
+            
+            // Touch move - detect if user is trying to select text
+            item.addEventListener('touchmove', (e) => {
+                if (e.touches.length > 0) {
+                    const deltaX = Math.abs(e.touches[0].clientX - touchStartX);
+                    const deltaY = Math.abs(e.touches[0].clientY - touchStartY);
+                    if (deltaX > 5 || deltaY > 5) {
+                        hasMoved = true;
+                    }
+                }
+            }, { passive: true });
+            
+            // Touch end - handle copy on quick tap
+            item.addEventListener('touchend', (e) => {
+                const touchDuration = Date.now() - touchStartTime;
+                // Only copy on quick tap (less than 200ms) without movement
+                if (touchDuration < 200 && !hasMoved) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    copyToClipboard(emoji).catch(err => {
+                        console.error('Copy failed: ', err);
+                    });
+                }
+            }, { passive: false });
+            
+            // Click event for desktop and mouse users
+            let lastClickTime = 0;
+            item.addEventListener('click', (e) => {
+                // Prevent double-firing on touch devices
+                const now = Date.now();
+                if (now - lastClickTime < 300) {
+                    return;
+                }
+                lastClickTime = now;
+                
+                // Check if this was from a touch event (detail is 0 for programmatic clicks)
+                if (e.detail === 0) {
+                    return; // Ignore programmatic clicks from touch events
+                }
+                
+                copyToClipboard(emoji).catch(err => {
+                    console.error('Copy failed: ', err);
                 });
             });
         });
