@@ -52,9 +52,6 @@ header {
     transition: var(--transition);
 }
 
-.header-link:hover {
-    opacity: 0.9;
-}
 
 header h1 {
     font-size: 2rem;
@@ -185,12 +182,6 @@ main {
     justify-content: center;
 }
 
-.tab-btn:hover {
-    background: var(--hover-color);
-    border-color: var(--primary-color);
-    transform: translateY(-3px);
-    box-shadow: var(--shadow-lg);
-}
 
 .tab-btn.active {
     background: var(--gradient-primary);
@@ -246,8 +237,11 @@ main {
     border-radius: 10px;
     padding: 0.5rem;
     text-align: center;
-    cursor: pointer;
-    transition: var(--transition);
+    cursor: text;
+    user-select: text;
+    -webkit-user-select: text;
+    -moz-user-select: text;
+    -ms-user-select: text;
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -259,34 +253,6 @@ main {
     position: relative;
     overflow: hidden;
     box-shadow: var(--shadow);
-}
-
-.emoji-item:hover {
-    background: var(--gradient-soft);
-    border-color: var(--primary-color);
-    box-shadow: var(--shadow-lg);
-    transform: translateY(-3px);
-}
-
-.emoji-item:active {
-    transform: translateY(0);
-}
-
-.emoji-item::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    background: var(--gradient-primary);
-    opacity: 0;
-    transition: var(--transition);
-    border-radius: 12px;
-}
-
-.emoji-item:hover::before {
-    opacity: 0.08;
 }
 
 .emoji-item::first-line {
@@ -305,6 +271,10 @@ main {
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
+    user-select: text;
+    -webkit-user-select: text;
+    -moz-user-select: text;
+    -ms-user-select: text;
 }
 
 /* SEO Content Section */
@@ -346,10 +316,6 @@ main {
     transition: var(--transition);
 }
 
-.seo-section:hover {
-    box-shadow: var(--shadow);
-    transform: translateX(5px);
-}
 
 .seo-section p {
     color: var(--text-color);
@@ -452,9 +418,6 @@ main {
     font-weight: 500;
 }
 
-.page-content a:hover {
-    text-decoration: underline;
-}
 
 .contact-section,
 .terms-section,
@@ -504,11 +467,6 @@ main {
     transition: var(--transition);
 }
 
-.contact-links a:hover {
-    background: var(--secondary-color);
-    text-decoration: none;
-    transform: translateY(-2px);
-}
 
 footer a {
     color: var(--primary-color);
@@ -516,9 +474,6 @@ footer a {
     margin: 0 0.5rem;
 }
 
-footer a:hover {
-    text-decoration: underline;
-}
 
 /* Footer */
 footer {
@@ -763,9 +718,6 @@ footer p:last-child {
     border-radius: 5px;
 }
 
-::-webkit-scrollbar-thumb:hover {
-    background: var(--secondary-color);
-}
 
 /* Focus Visible for Better Accessibility */
 .tab-btn:focus-visible,
