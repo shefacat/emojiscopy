@@ -28,6 +28,7 @@ async function generateSymbol() {
     // تعطيل الزرار وتغيير النص
     generateBtn.disabled = true;
     generateBtn.textContent = '⏳ Generating Symbol...';
+
     
     try {
         // إرسال الطلب للـ Worker
@@ -67,21 +68,148 @@ function showError(message) {
     errorContainer.innerHTML = `<div class="error">${message}</div>`;
 }
 
-// دالة نسخ النتيجة
-function copyToClipboard() {
-    const textToCopy = asciiOutput.textContent;
-    
-    navigator.clipboard.writeText(textToCopy).then(() => {
-        // تغيير نص الزرار مؤقتاً
+// Detect if device is mobile
+const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+
+// Mobile-optimized copy function
+function fallbackCopy(text) {
+    return new Promise((resolve, reject) => {
+        const textArea = document.createElement('textarea');
+        textArea.value = text;
+        textArea.style.position = 'fixed';
+        textArea.style.top = '0';
+        textArea.style.left = '0';
+        textArea.style.width = '2em';
+        textArea.style.height = '2em';
+        textArea.style.padding = '0';
+        textArea.style.border = 'none';
+        textArea.style.outline = 'none';
+        textArea.style.boxShadow = 'none';
+        textArea.style.background = 'transparent';
+        textArea.style.opacity = '0';
+        textArea.style.zIndex = '9999';
+        textArea.setAttribute('readonly', '');
+        textArea.setAttribute('contenteditable', 'true');
+        
+        document.body.appendChild(textArea);
+        
+        // Focus and select for mobile devices
+        textArea.focus();
+        textArea.select();
+        
+        // For iOS devices
+        if (navigator.userAgent.match(/ipad|iphone/i)) {
+            const range = document.createRange();
+            range.selectNodeContents(textArea);
+            const selection = window.getSelection();
+            selection.removeAllRanges();
+            selection.addRange(range);
+            textArea.setSelectionRange(0, 999999);
+        } else {
+            // For Android and other devices
+            textArea.setSelectionRange(0, 999999);
+        }
+        
+        // Small delay to ensure selection is set
+        setTimeout(() => {
+            try {
+                const successful = document.execCommand('copy');
+                document.body.removeChild(textArea);
+                if (successful) {
+                    resolve(true);
+                } else {
+                    // Try clipboard API as last resort
+                    if (navigator.clipboard && window.isSecureContext) {
+                        navigator.clipboard.writeText(text).then(() => {
+                            resolve(true);
+                        }).catch(err => {
+                            reject(new Error('All copy methods failed'));
+                        });
+                    } else {
+                        reject(new Error('Copy command failed'));
+                    }
+                }
+            } catch (err) {
+                document.body.removeChild(textArea);
+                // Try clipboard API as last resort
+                if (navigator.clipboard && window.isSecureContext) {
+                    navigator.clipboard.writeText(text).then(() => {
+                        resolve(true);
+                    }).catch(clipErr => {
+                        console.error('All copy methods failed: ', err, clipErr);
+                        reject(err);
+                    });
+                } else {
+                    console.error('Fallback copy failed: ', err);
+                    reject(err);
+                }
+            }
+        }, 10);
+    });
+}
+
+// Update copy button text while preserving icon
+function updateCopyButtonText() {
+    const copyText = copyBtn.querySelector('.copy-text');
+    if (copyText) {
+        const originalText = copyText.textContent;
+        copyText.textContent = 'Copied!';
+        copyText.style.color = '#4ade80';
+        
+        setTimeout(() => {
+            copyText.textContent = originalText;
+            copyText.style.color = '';
+        }, 2000);
+    } else {
+        // Fallback if structure is different
         const originalText = copyBtn.textContent;
         copyBtn.textContent = '✅ Copied!';
         
         setTimeout(() => {
             copyBtn.textContent = originalText;
         }, 2000);
-    }).catch(err => {
-        showError('Copy failed: ' + err.message);
-    });
+    }
+}
+
+// دالة نسخ النتيجة - Mobile Optimized
+function copyToClipboard() {
+    const textToCopy = asciiOutput.textContent;
+    
+    if (!textToCopy || textToCopy.trim() === '') {
+        showError('⚠️ No content to copy!');
+        return;
+    }
+    
+    // On mobile, prefer the textArea method as it's more reliable
+    if (isMobile) {
+        fallbackCopy(textToCopy).then(() => {
+            updateCopyButtonText();
+        }).catch(err => {
+            showError('❌ Failed to copy: ' + err.message);
+        });
+        return;
+    }
+    
+    // On desktop, try modern clipboard API first
+    if (navigator.clipboard && window.isSecureContext) {
+        navigator.clipboard.writeText(textToCopy).then(() => {
+            updateCopyButtonText();
+        }).catch(err => {
+            console.error('Clipboard API failed: ', err);
+            fallbackCopy(textToCopy).then(() => {
+                updateCopyButtonText();
+            }).catch(fallbackErr => {
+                showError('❌ Failed to copy: ' + fallbackErr.message);
+            });
+        });
+    } else {
+        // Use fallback for non-secure contexts or older browsers
+        fallbackCopy(textToCopy).then(() => {
+            updateCopyButtonText();
+        }).catch(err => {
+            showError('❌ Failed to copy: ' + err.message);
+        });
+    }
 }
 
 // ربط الأحداث
