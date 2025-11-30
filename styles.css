@@ -992,6 +992,11 @@ footer p:last-child {
     margin: 0;
 }
 
+.ai-example-container {
+    display: flex;
+    gap:5px
+}
+
 /* AI Platform Tabs */
 .ai-platform-tabs {
     display: flex;
@@ -1168,6 +1173,14 @@ footer p:last-child {
 
     .ai-generator-section h2 {
         font-size: 1.5rem;
+    }
+
+    .ai-example-container {
+        justify-content: space-between;
+    }
+
+    .ai-example-preview-mobile-hide {
+        display: none;
     }
 
     .ai-platform-tabs {
