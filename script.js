@@ -1,13 +1,54 @@
-// الحصول على العناصر بالـ ID
+// Mobile Navigation Toggle (Runs on all pages)
+const hamburger = document.querySelector('.hamburger');
+const navMenu = document.querySelector('.nav-menu');
+
+if (hamburger && navMenu) {
+    hamburger.addEventListener('click', function() {
+        hamburger.classList.toggle('active');
+        navMenu.classList.toggle('active');
+
+        // Update ARIA attribute for accessibility
+        const isExpanded = hamburger.classList.contains('active');
+        hamburger.setAttribute('aria-expanded', isExpanded);
+    });
+
+    // Close menu when clicking on a nav link
+    const navLinks = document.querySelectorAll('.nav-link');
+    navLinks.forEach(link => {
+        link.addEventListener('click', () => {
+            hamburger.classList.remove('active');
+            navMenu.classList.remove('active');
+            hamburger.setAttribute('aria-expanded', 'false');
+        });
+    });
+
+    // Close menu when clicking outside
+    document.addEventListener('click', function(event) {
+        const isClickInsideNav = navMenu.contains(event.target);
+        const isClickOnHamburger = hamburger.contains(event.target);
+
+        if (!isClickInsideNav && !isClickOnHamburger && navMenu.classList.contains('active')) {
+            hamburger.classList.remove('active');
+            navMenu.classList.remove('active');
+            hamburger.setAttribute('aria-expanded', 'false');
+        }
+    });
+}
+
+// AI Symbol Generator Code (Only runs on index.html)
 const promptInput = document.getElementById('promptInput');
 const generateBtn = document.getElementById('generateBtn');
 const outputContainer = document.getElementById('outputContainer');
 const asciiOutput = document.getElementById('asciiOutput');
 const copyBtn = document.getElementById('copyBtn');
 const errorContainer = document.getElementById('errorContainer');
+const retryMessage = document.getElementById('retryMessage');
 
 // رابط الـ Cloudflare Worker بتاعك
 const WORKER_URL = 'https://ai-symbol-generator.shiref-abouzaid.workers.dev/';
+
+// Only run generator code if elements exist (index.html)
+if (promptInput && generateBtn && outputContainer) {
 
 // دالة توليد الـ Symbol
 async function generateSymbol() {
@@ -21,23 +62,30 @@ async function generateSymbol() {
     
     // إخفاء الأخطاء السابقة
     errorContainer.innerHTML = '';
-    
+
     // إخفاء النتيجة السابقة
     outputContainer.classList.remove('show');
+    if (retryMessage) retryMessage.classList.remove('show');
     
     // تعطيل الزرار وتغيير النص
     generateBtn.disabled = true;
     generateBtn.textContent = '⏳ Generating Symbol...';
 
-    
+
     try {
+        // الحصول على رمز reCAPTCHA
+        // const token = await grecaptcha.execute('6Lf3ehwsAAAAANq5zGvrCftGzgbECzJIUq2Ffm7Q', { action: 'generate_symbol' });
+
         // إرسال الطلب للـ Worker
         const response = await fetch(WORKER_URL, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
             },
-            body: JSON.stringify({ prompt: userPrompt })
+            body: JSON.stringify({
+                prompt: userPrompt,
+                // recaptchaToken: token
+            })
         });
         
         const data = await response.json();
@@ -50,7 +98,8 @@ async function generateSymbol() {
         // عرض النتيجة
         asciiOutput.textContent = data.symbol;
         outputContainer.classList.add('show');
-        
+        if (retryMessage) retryMessage.classList.add('show');
+
         // Scroll للنتيجة
         outputContainer.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
         
@@ -223,3 +272,5 @@ promptInput.addEventListener('keypress', function(e) {
         generateSymbol();
     }
 });
+
+} // End of generator code conditional block

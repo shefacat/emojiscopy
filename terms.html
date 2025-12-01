@@ -70,12 +70,30 @@
     </script>
 </head>
 <body>
-    <header>
-        <div class="container">
+    <header itemscope itemtype="https://schema.org/WPHeader">
+        <div class="container header-container">
             <a href="index.html" class="header-link">
-                <h1>🎭 EmojisCopy</h1>
-                <p class="tagline">Terms and Conditions</p>
+                <div class="logo" itemprop="headline">🤖 AI Symbol Generator</div>
+                <p class="tagline" itemprop="description">Generate custom symbols, ASCII art, and decorative text with AI - Free & Instant!</p>
             </a>
+
+            <!-- Navigation -->
+            <nav class="main-nav" role="navigation" aria-label="Main navigation">
+                <button class="hamburger" aria-label="Toggle navigation menu" aria-expanded="false">
+                    <span class="hamburger-line"></span>
+                    <span class="hamburger-line"></span>
+                    <span class="hamburger-line"></span>
+                </button>
+                <ul class="nav-menu">
+                    <li><a href="index.html" class="nav-link">Home</a></li>
+                    <li><a href="emojis.html" class="nav-link">Emojis</a></li>
+                    <li><a href="contact.html" class="nav-link">Contact</a></li>
+                    <li><a href="terms.html" class="nav-link active" aria-current="page">Terms</a></li>
+                    <li><a href="privacy.html" class="nav-link">Privacy</a></li>
+                </ul>
+            </nav>
+
+            <p class="bookmark-message">🔖 Bookmark us for quick access to AI symbol generation!</p>
         </div>
     </header>
 
@@ -137,7 +155,7 @@
 
             <div class="terms-section">
                 <h3>10. Contact Information</h3>
-                <p>If you have any questions about these Terms and Conditions, please contact us at <strong>contact@emoji2copy.com</strong></p>
+                <p>If you have any questions about these Terms and Conditions, please contact us at <strong>shefa_cat@yahoo.com</strong></p>
             </div>
 
             <div class="contact-section">
@@ -157,6 +175,7 @@
             <p><a href="contact.html">Contact</a> | <a href="privacy.html">Privacy Policy</a> | <a href="terms.html">Terms and Conditions</a></p>
         </div>
     </footer>
+    <script src="script.js"></script>
 </body>
 </html>
 

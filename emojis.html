@@ -38,12 +38,29 @@
 </head>
 <body>
     <header itemscope itemtype="https://schema.org/WPHeader">
-        <div class="container">
+        <div class="container header-container">
             <a href="index.html" class="header-link">
-                <h1 itemprop="headline">🎭 EmojisCopy</h1>
-                <p class="tagline" itemprop="description">Copy any emoji, emoticon, or rare symbol instantly!</p>
+                <div class="logo" itemprop="headline">🤖 AI Symbol Generator</div>
+                <p class="tagline" itemprop="description">Generate custom symbols, ASCII art, and decorative text with AI - Free & Instant!</p>
             </a>
-            <p class="bookmark-message">🔖 ✧･ﾟ: *✧･ﾟ:* Bookmark us for quick access to all emojis and symbols! ✧･ﾟ: *✧･ﾟ:* ✧</p>
+
+            <!-- Navigation -->
+            <nav class="main-nav" role="navigation" aria-label="Main navigation">
+                <button class="hamburger" aria-label="Toggle navigation menu" aria-expanded="false">
+                    <span class="hamburger-line"></span>
+                    <span class="hamburger-line"></span>
+                    <span class="hamburger-line"></span>
+                </button>
+                <ul class="nav-menu">
+                    <li><a href="index.html" class="nav-link">Home</a></li>
+                    <li><a href="emojis.html" class="nav-link active" aria-current="page">Emojis</a></li>
+                    <li><a href="contact.html" class="nav-link">Contact</a></li>
+                    <li><a href="terms.html" class="nav-link">Terms</a></li>
+                    <li><a href="privacy.html" class="nav-link">Privacy</a></li>
+                </ul>
+            </nav>
+
+            <p class="bookmark-message">🔖 Bookmark us for quick access to AI symbol generation!</p>
         </div>
     </header>
 
@@ -1081,6 +1098,7 @@
             });
         });
     </script>
+    <script src="script.js"></script>
 </body>
 </html>
 

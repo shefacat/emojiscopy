@@ -192,12 +192,29 @@
     </head>
 <body>
     <header itemscope itemtype="https://schema.org/WPHeader">
-        <div class="container">
+        <div class="container header-container">
             <a href="index.html" class="header-link">
                 <div class="logo" itemprop="headline">🤖 AI Symbol Generator</div>
                 <p class="tagline" itemprop="description">Generate custom symbols, ASCII art, and decorative text with AI - Free & Instant!</p>
             </a>
-            <p class="bookmark-message">🔖 ✧･ﾟ: *✧･ﾟ:* Bookmark us for quick access to AI symbol generation! ✧･ﾟ: *✧･ﾟ:* ✧</p>
+
+            <!-- Navigation -->
+            <nav class="main-nav" role="navigation" aria-label="Main navigation">
+                <button class="hamburger" aria-label="Toggle navigation menu" aria-expanded="false">
+                    <span class="hamburger-line"></span>
+                    <span class="hamburger-line"></span>
+                    <span class="hamburger-line"></span>
+                </button>
+                <ul class="nav-menu">
+                    <li><a href="index.html" class="nav-link active" aria-current="page">Home</a></li>
+                    <li><a href="emojis.html" class="nav-link">Emojis</a></li>
+                    <li><a href="contact.html" class="nav-link">Contact</a></li>
+                    <li><a href="terms.html" class="nav-link">Terms</a></li>
+                    <li><a href="privacy.html" class="nav-link">Privacy</a></li>
+                </ul>
+            </nav>
+
+            <p class="bookmark-message">🔖 Bookmark us for quick access to AI symbol generation!</p>
         </div>
     </header>
 
@@ -206,7 +223,7 @@
         <div class="ad-placeholder">Advertisement Space 728x90</div>
     </div>
 
-    <main class="container" stlye="padding-top:20px" itemscope itemtype="https://schema.org/ItemList">
+    <main class="container" style="padding-top:20px" itemscope itemtype="https://schema.org/ItemList">
         <!-- AI Symbol Generator Section -->
         <div class="ai-generator-section">
             <h1>Free AI Symbol Generator - Create Custom ASCII Art & Text Symbols Instantly</h1>
@@ -274,13 +291,22 @@
 /   (_____/
 \_____/   U</pre>
             </div>
-            
+
+            <!-- Retry Message -->
+            <div class="ai-retry-message" id="retryMessage">
+                <p>💡 Not satisfied with the result? <strong>Click "Generate Symbol" again</strong> with the same prompt to get a different variation!</p>
+            </div>
+
         </div>
 
         <!-- Search Bar -->
-        <div class="search-container">
-            <label for="searchInput" class="sr-only" hidden>Search emojis</label>
-            <input type="search" id="searchInput" name="search" placeholder="🔍 Search emojis... (e.g., smile, heart, fire)" aria-label="Search emojis by keyword">
+        <div class="search-section">
+            <h2 class="search-heading">🔍 Search & Copy Emojis</h2>
+            <p class="search-description">Find any emoji, emoticon, or symbol instantly - just type and click to copy!</p>
+            <div class="search-container">
+                <label for="searchInput" class="sr-only" hidden>Search emojis</label>
+                <input type="search" id="searchInput" name="search" placeholder="🔍 Search emojis... (e.g., smile, heart, fire)" aria-label="Search emojis by keyword">
+            </div>
         </div>
 
         <!-- Copy Notification -->
