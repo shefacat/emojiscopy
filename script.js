@@ -44,39 +44,58 @@ const copyBtn = document.getElementById('copyBtn');
 const errorContainer = document.getElementById('errorContainer');
 const retryMessage = document.getElementById('retryMessage');
 
-// رابط الـ Cloudflare Worker بتاعك
+// Cloudflare Worker URL
 const WORKER_URL = 'https://ai-symbol-generator.shiref-abouzaid.workers.dev/';
+
+// reCAPTCHA Site Key
+const RECAPTCHA_SITE_KEY = '6Lc5ZR0sAAAAAMnsgEItgFq1GrQNfR2dYbC0V5uP';
 
 // Only run generator code if elements exist (index.html)
 if (promptInput && generateBtn && outputContainer) {
 
-// دالة توليد الـ Symbol
+// Request state management
+let isRequestPending = false;
+
+// Function to generate symbol
 async function generateSymbol() {
     const userPrompt = promptInput.value.trim();
-    
-    // التحقق من وجود نص
+
+    // Check if prompt is not empty
     if (!userPrompt) {
         showError('⚠️ Please enter a prompt for the symbol generation!');
         return;
     }
-    
-    // إخفاء الأخطاء السابقة
+
+    // Prevent multiple simultaneous requests
+    if (isRequestPending) {
+        showError('⏳ Please wait... A request is already in progress!');
+        return;
+    }
+
+    // Hide previous errors
     errorContainer.innerHTML = '';
 
-    // إخفاء النتيجة السابقة
+    // Hide previous result
     outputContainer.classList.remove('show');
     if (retryMessage) retryMessage.classList.remove('show');
-    
-    // تعطيل الزرار وتغيير النص
-    generateBtn.disabled = true;
-    generateBtn.textContent = '⏳ Generating Symbol...';
 
+    // Disable button and change text
+    generateBtn.disabled = true;
+    generateBtn.textContent = '🔐 Verifying...';
+
+    // Set request as pending
+    isRequestPending = true;
 
     try {
-        // الحصول على رمز reCAPTCHA
-        // const token = await grecaptcha.execute('6Lf3ehwsAAAAANq5zGvrCftGzgbECzJIUq2Ffm7Q', { action: 'generate_symbol' });
+        // Get reCAPTCHA token
+        const recaptchaToken = await grecaptcha.execute(RECAPTCHA_SITE_KEY, { 
+            action: 'generate_symbol' 
+        });
 
-        // إرسال الطلب للـ Worker
+        // Update button text
+        generateBtn.textContent = '⏳ Generating Symbol...';
+
+        // Send request to Worker
         const response = await fetch(WORKER_URL, {
             method: 'POST',
             headers: {
@@ -84,35 +103,41 @@ async function generateSymbol() {
             },
             body: JSON.stringify({
                 prompt: userPrompt,
-                // recaptchaToken: token
+                recaptchaToken: recaptchaToken
             })
         });
-        
+
         const data = await response.json();
-        
-        // التحقق من وجود خطأ
+
+        // Check for errors
         if (data.error) {
             throw new Error(data.error);
         }
-        
-        // عرض النتيجة
+
+        // Clear any previous errors (including "Please wait" message)
+        errorContainer.innerHTML = '';
+
+        // Display result
         asciiOutput.textContent = data.symbol;
         outputContainer.classList.add('show');
         if (retryMessage) retryMessage.classList.add('show');
 
-        // Scroll للنتيجة
+        // Scroll to result
         outputContainer.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
         
     } catch (error) {
-        showError('❌ error: ' + error.message);
+        showError('❌ Error: ' + error.message);
     } finally {
-        // إعادة الزرار لحالته الطبيعية
+        // Reset request state
+        isRequestPending = false;
+
+        // Reset button to normal state
         generateBtn.disabled = false;
         generateBtn.textContent = '✨ Generate Symbol';
     }
 }
 
-// دالة عرض الأخطاء
+// Function to show errors
 function showError(message) {
     errorContainer.innerHTML = `<div class="error">${message}</div>`;
 }
@@ -120,7 +145,7 @@ function showError(message) {
 // Detect if device is mobile (use global from index.html)
 const isMobile2 = window.isMobile2 !== undefined ? window.isMobile2 : /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
 
-// Fallback copy method (works better on mobile) - Same as index.html
+// Fallback copy method (works better on mobile)
 function fallbackCopy(text) {
     return new Promise((resolve, reject) => {
         const textArea = document.createElement('textarea');
@@ -220,7 +245,7 @@ function updateCopyButtonText() {
     }
 }
 
-// دالة نسخ النتيجة - Mobile Optimized (Same logic as index.html)
+// Copy function - Mobile Optimized
 function copyToClipboard() {
     const textToCopy = asciiOutput.textContent;
     
@@ -261,11 +286,11 @@ function copyToClipboard() {
     }
 }
 
-// ربط الأحداث
+// Event listeners
 generateBtn.addEventListener('click', generateSymbol);
 copyBtn.addEventListener('click', copyToClipboard);
 
-// السماح بالضغط على Enter لتوليد الرسمة
+// Allow Enter key to generate symbol
 promptInput.addEventListener('keypress', function(e) {
     if (e.key === 'Enter' && !e.shiftKey) {
         e.preventDefault();
