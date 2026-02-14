@@ -182,6 +182,21 @@ header {
     box-shadow: var(--shadow);
 }
 
+.ad-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin-bottom: 10px;
+}
+
+.ad-desktop {
+    display: flex;
+}
+
+.ad-mobile {
+    display: none;
+}
+
 .ad-top, .ad-middle, .ad-bottom {
     width: 100%;
     max-width: 100%;
@@ -201,6 +216,7 @@ header {
     height: 250px;
     max-width: 300px;
 }
+
 
 .ad-placeholder {
     color: var(--text-secondary);
@@ -743,6 +759,14 @@ footer p:last-child {
 
     .main-nav {
         margin-top: 0.5rem;
+    }
+
+    .ad-desktop {
+        display: none;
+    }
+
+    .ad-mobile {
+        display: flex;
     }
 
     .search-heading {
